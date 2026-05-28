@@ -5,7 +5,7 @@
 | Component | Owns | Runtime |
 |---|---|---|
 | **CLI Ingester** (`pelis ingest`) | RSS fetching, parsing, deduplication, feed health tracking, alerting | Cron-triggered process (runs and exits) |
-| **FastAPI Web App** (`pelis serve`) | Filtered view rendering, read-tracking, on-demand enrichment | Long-running local process (on-demand) |
+| **FastAPI Web App** (`pelis serve`) | JSON API (movies, read-tracking, enrichment) + static file serving (React frontend) | Long-running local process (on-demand) |
 | **Database** (MySQL/SQLite) | Persistent state for movies, feed health, read status | Shared resource |
 | **Config file** (`config.yaml`) | Filtering rules, connection strings, alerting config | Shared resource (read by both processes) |
 
@@ -30,14 +30,13 @@ pelis-feed/
 │   │   └── omdb.py         # OMDb/TMDb/imdbapi implementation
 │   └── webapp/
 │       ├── __init__.py
-│       ├── app.py           # FastAPI app factory
-│       ├── routes.py        # Route handlers
+│       ├── app.py           # FastAPI app factory + static file mounting
+│       ├── routes.py        # JSON API route handlers
 │       ├── filters.py       # Filtering + sorting logic
-│       └── templates/
-│           ├── base.html    # Base layout
-│           ├── index.html   # Main movie list view
-│           └── partials/
-│               └── movie_card.html  # HTMX partial for read-toggle
+│       └── static/
+│           ├── index.html   # Static HTML shell (loads React via CDN)
+│           ├── app.js       # React components (plain JS, JSX via Babel CDN)
+│           └── styles.css   # Application styles
 ├── config.yaml             # User configuration
 ├── requirements.txt        # Python dependencies
 └── README.md
@@ -53,15 +52,17 @@ pelis-feed/
 | `pelis serve` | Start FastAPI web app | Manual (on-demand) |
 | `pelis check-health` | Check feed health, send alert if needed | Cron (can run with ingest or separately) |
 
-### Web App Routes (FastAPI)
+### Web App Routes (FastAPI — JSON API)
 
 | Method | Path | Description | Response |
 |---|---|---|---|
-| GET | `/` | Main movie list (filtered, grouped by year) | HTML (Jinja2) |
-| POST | `/movies/{id}/read` | Mark movie as read | HTMX partial (updated card) |
-| POST | `/movies/{id}/unread` | Mark movie as unread | HTMX partial (updated card) |
-| POST | `/movies/{id}/enrich` | Trigger on-demand rating enrichment | HTMX partial (updated card with ratings) |
-| GET | `/health` | Feed health status (last fetch, errors) | HTML snippet |
+| GET | `/` | Serve static React frontend (`index.html`) | Static HTML |
+| GET | `/api/movies` | Filtered movie list grouped by year | JSON |
+| POST | `/api/movies/{id}/read` | Mark movie as read | JSON |
+| POST | `/api/movies/{id}/unread` | Mark movie as unread | JSON |
+| POST | `/api/movies/{id}/enrich` | Trigger on-demand rating enrichment | JSON |
+| GET | `/api/health` | Feed health status (last fetch, errors) | JSON |
+| GET | `/static/*` | Static assets (JS, CSS) | Static files |
 
 ### Database Interface
 
@@ -76,7 +77,7 @@ pelis-feed/
 - **AuthZ:** None — all actions available to anyone who can reach the port
 - **Network:** Web app binds to `127.0.0.1` only (not exposed to network)
 - **Secrets management:** Database credentials and API keys stored in `config.yaml` (file permissions: owner-only read). Not committed to git (`.gitignore`).
-- **Input sanitization:** Jinja2 auto-escaping for all rendered HTML (protects against XSS from RSS feed data)
+- **Input sanitization:** React's default JSX escaping prevents XSS from RSS feed data rendered in the UI. API responses are JSON-only (no raw HTML injection).
 
 ## 4) Operational Model
 
@@ -111,8 +112,8 @@ pelis-feed/
 |---|---|---|
 | Language | Python | 3.11+ |
 | Web framework | FastAPI | latest |
-| Templating | Jinja2 | (bundled with FastAPI) |
-| Interactivity | HTMX | latest (CDN) |
+| Frontend rendering | React (CDN — no build step) | 18.x |
+| JSX transform | Babel Standalone (CDN) | latest |
 | ORM | SQLAlchemy | 2.0+ |
 | DB (primary) | MySQL | 8.0+ |
 | DB (fallback) | SQLite | 3.x (stdlib) |
@@ -133,5 +134,5 @@ pelis-feed/
 | C-003 (Two processes) | CLI ingester (cron) + FastAPI web app (on-demand) |
 | C-004 (No paid APIs) | Free-tier enrichment sources only |
 | C-005 (Local SMTP) | `smtplib` with configurable SMTP host |
-| C-006 (Web UI via FastAPI) | FastAPI + Jinja2 + HTMX |
+| C-006 (Web UI via FastAPI) | FastAPI serves static React app (CDN-loaded, no build step) + JSON API |
 | C-007 (Config file) | `config.yaml` for all configurable values |

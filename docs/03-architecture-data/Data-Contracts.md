@@ -161,3 +161,132 @@ webapp:
 - Use `<link>` or `<enclosure>` URL as deduplication key
 
 **Risk:** Feed format is uncontrolled and may change without notice. Parser must log warnings on unexpected format changes.
+
+## 7) API Response Contracts (JSON)
+
+### GET `/api/movies`
+
+Returns filtered movies grouped by year sections.
+
+```json
+{
+  "sections": [
+    {
+      "year": 2026,
+      "label": "2026",
+      "movies": [
+        {
+          "id": 42,
+          "title": "Movie Name",
+          "year": 2026,
+          "genres": ["Action", "Thriller"],
+          "qualities": ["720p", "1080p", "2160p"],
+          "torrent_url": "https://...",
+          "imdb_rating": 7.2,
+          "rt_expert_rating": 85,
+          "rt_audience_rating": 78,
+          "poster_url": "https://...",
+          "feed_entry_date": "2026-05-20T14:30:00Z",
+          "enrichment_date": "2026-05-20T15:00:00Z",
+          "enrichment_error": null,
+          "is_read": false
+        }
+      ]
+    },
+    {
+      "year": null,
+      "label": "Older (pre-2021)",
+      "movies": [...]
+    }
+  ],
+  "total_count": 150
+}
+```
+
+**Notes:**
+- Movies are ordered within each section by genre priority (from config)
+- `is_read: true` movies are excluded from the response
+- Nullable fields (`imdb_rating`, `rt_expert_rating`, `rt_audience_rating`, `poster_url`, `enrichment_date`, `enrichment_error`) may be `null`
+
+### POST `/api/movies/{id}/read`
+
+Marks a movie as read. Returns the updated movie object.
+
+```json
+{
+  "id": 42,
+  "title": "Movie Name",
+  "is_read": true,
+  "updated_at": "2026-05-20T16:00:00Z"
+}
+```
+
+### POST `/api/movies/{id}/unread`
+
+Marks a movie as unread. Returns the updated movie object.
+
+```json
+{
+  "id": 42,
+  "title": "Movie Name",
+  "is_read": false,
+  "updated_at": "2026-05-20T16:05:00Z"
+}
+```
+
+### POST `/api/movies/{id}/enrich`
+
+Triggers on-demand enrichment. Returns the updated movie with ratings.
+
+```json
+{
+  "id": 42,
+  "title": "Movie Name",
+  "imdb_rating": 7.2,
+  "rt_expert_rating": 85,
+  "rt_audience_rating": 78,
+  "enrichment_date": "2026-05-20T16:10:00Z",
+  "enrichment_error": null
+}
+```
+
+On enrichment failure:
+
+```json
+{
+  "id": 42,
+  "title": "Movie Name",
+  "imdb_rating": null,
+  "rt_expert_rating": null,
+  "rt_audience_rating": null,
+  "enrichment_date": null,
+  "enrichment_error": "OMDb API timeout after 10s"
+}
+```
+
+### GET `/api/health`
+
+Returns feed health status.
+
+```json
+{
+  "last_success_at": "2026-05-20T14:00:00Z",
+  "last_attempt_at": "2026-05-20T16:00:00Z",
+  "last_error": null,
+  "consecutive_failures": 0,
+  "status": "healthy"
+}
+```
+
+**`status` values:** `"healthy"` (last success < 24h ago), `"degraded"` (last success > 24h ago), `"unknown"` (never fetched)
+
+### Error Responses (All Endpoints)
+
+```json
+{
+  "detail": "Movie not found",
+  "status_code": 404
+}
+```
+
+Standard HTTP status codes: `200` success, `404` not found, `500` internal error.
