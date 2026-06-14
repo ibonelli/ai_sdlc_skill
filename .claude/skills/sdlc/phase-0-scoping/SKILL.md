@@ -30,6 +30,30 @@ docs/06-documentation/
 docs/adr/
 ```
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: `README*`, `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `git log --oneline -20`, any files in `docs/`.
+
+After scanning, propose answers for every question below with evidence citations:
+```
+Project name: "pelis-feed" (from package.json "name" field)
+Problem: Automated filtering of movie RSS feeds (from README paragraph 1)
+[UNCLEAR — please provide]: Decision Needed
+```
+Present the full proposed list and ask the user to confirm or correct specific items. Only ask follow-up questions for items marked `[UNCLEAR]`.
+
+**Personal project mode** — if active, apply before gathering information:
+
+Load defaults from `references/personal-project-preset.md`. Pre-fill without asking:
+- Stakeholders → Sole developer (you)
+- Compliance, budget, decision gate → see preset
+
+Skip from the question batch: **Stakeholders** (6), **Decision Needed** (12).
+
+Ask only: Project name, Problem, Impact, Proposed Outcome, In Scope, Out of Scope, Success Criteria, Known technical constraints, Risks.
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following** in a single batch using `ask_user_question`:

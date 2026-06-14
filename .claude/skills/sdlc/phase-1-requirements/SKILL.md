@@ -25,6 +25,24 @@ Use the Problem Statement to pre-populate context and validate alignment.
 2. Extract: problem summary, scope boundaries, success criteria, known constraints
 3. Use these as context for questions below
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: `README*`, existing test files (`tests/`, `spec/`, `*_test.*`, `*.test.*`), API spec files (`openapi.yaml`, `swagger.json`, `api/`), source code docstrings and comments, `docs/00-scoping/`.
+
+After scanning, propose answers for every question below with evidence citations. Pre-populate FR-xxx suggestions based on features visible in the code. Mark anything that can't be inferred as `[UNCLEAR — please provide]`.
+
+Present proposed answers and ask the user to confirm or correct specific items only.
+
+**Personal project mode** — if active, apply before gathering information:
+
+Load defaults from `references/personal-project-preset.md`. Skip from the question batch:
+- **Integration Requirements** (6) — ask only if the codebase clearly connects to external systems.
+- **PII classification** within Data Requirements — ask only if personal data is obviously present.
+
+Ask only: Goal, Personas/Users, Functional Requirements, Non-Functional Requirements, Data elements, Acceptance Criteria, Open Questions.
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following** in a single batch:

@@ -44,6 +44,9 @@ docs/adr/ADR-*.md                        → ADRs (any phase)
 No SDLC artifacts found. Options:
 1. Start a new project from Phase 0 (Scoping)
 2. Jump to a specific phase
+3. Auto-fill from repository — I'll read the codebase and propose answers
+4. Personal project mode — Simplified questions, solo-developer defaults pre-filled
+5. Auto-fill + Personal project — Both combined
 ```
 
 **If artifacts exist:**
@@ -58,9 +61,20 @@ Options:
 1. Continue from next incomplete phase (Phase X)
 2. Jump to a specific phase
 3. Re-do a completed phase
+4. Auto-fill from repository — I'll read the codebase and propose answers
+5. Personal project mode — Simplified questions, solo-developer defaults pre-filled
+6. Auto-fill + Personal project — Both combined
 ```
 
+**Mode definitions (carry these forward into every phase sub-skill):**
+
+- **Auto-fill mode**: Before asking any questions, scan the repository for evidence and propose inferred answers. User confirms or corrects rather than answering from scratch.
+- **Personal project mode**: Pre-fill solo/hobby defaults (stakeholders, compliance, team, on-call, SLA) and skip questions that don't apply to a solo developer. Load defaults from `references/personal-project-preset.md`.
+- These modes are independent and can be combined.
+
 ### Step 3: Route to Phase Sub-Skill
+
+**Before routing**: note the active mode(s) as context so the phase sub-skill applies them correctly.
 
 Based on user selection, load the appropriate sub-skill:
 

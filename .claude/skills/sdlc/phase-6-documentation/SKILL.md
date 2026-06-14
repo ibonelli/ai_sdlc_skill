@@ -26,6 +26,37 @@ Main skill routes here after Phase 5 is complete or user jumps to Phase 6.
 2. Extract: architecture summary, operational model, ADR decisions, implementation details
 3. Synthesize into documentation context
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: `README*`, deployment scripts (`deploy.sh`, `Makefile deploy`, `Dockerfile`, `docker-compose.yml`), `.env.example`, existing `docs/` artifacts from prior phases, `package.json scripts`, `Procfile`.
+
+After scanning, propose:
+- System purpose synthesized from README
+- Repository map inferred from directory structure
+- How to run locally inferred from README "Getting Started" or Makefile
+- How to deploy inferred from deployment scripts or CI deploy step
+
+Mark anything that can't be inferred as `[UNCLEAR — please provide]`. Present proposed answers and ask the user to confirm or correct specific items only.
+
+**Personal project mode** — if active, apply before gathering information:
+
+Load defaults from `references/personal-project-preset.md`. Pre-fill without asking:
+- Ownership → Sole developer (you)
+- On-call → Developer (you)
+- SLOs/SLIs → Best-effort, no formal targets
+- Alert escalation → Developer (you)
+
+Skip from the question batch:
+- **Ownership** (5) — pre-filled.
+- **SLOs/SLIs** (6) — pre-filled as best-effort.
+- **Alerts escalation paths** within (7) — simplify to "what alerts exist and what they mean"; skip escalation.
+
+Ask only: System Purpose, Architecture Summary, How to Operate, Known Failure Modes, Common Operational Tasks, Repository Map, How to Run Locally, How to Deploy.
+
+Note: When generating artifacts in personal project mode, omit empty sections rather than leaving them blank (no "N/A" placeholders for SLOs, on-call, etc.).
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following:**

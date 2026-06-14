@@ -26,6 +26,32 @@ Main skill routes here after Phase 2 is complete or user jumps to Phase 3.
 3. Extract: proposed components, data flows, constraints, draft ADR decisions
 4. Summarize architecture context for the user
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: source directory structure (`find . -type d -not -path '*/.*' | head -40`), dependency manifests (`package.json`, `requirements.txt`, `Cargo.toml`, `go.mod`), config files (`*.yaml`, `*.toml`, `*.env*`, `.env.example`), `Dockerfile`, `docker-compose.yml`, database migration files.
+
+After scanning, propose:
+- Components/services inferred from directory structure and entry points
+- Data entities inferred from model/schema files or database migrations
+- Interfaces inferred from route definitions and API files
+- Security model inferred from auth middleware or config
+
+Mark anything that can't be inferred as `[UNCLEAR — please provide]`. Present proposed answers and ask the user to confirm or correct specific items only.
+
+**Personal project mode** — if active, apply before gathering information:
+
+Load defaults from `references/personal-project-preset.md`. Pre-fill without asking:
+- Service ownership → Sole developer (you)
+- Compatibility/deprecation policy → No formal policy (personal project)
+
+Skip from the question batch:
+- **Service Boundaries & Ownership** (1) — collapse to: "What components exist?" (skip ownership detail).
+- **Compatibility Rules** (6) — skip unless explicitly needed.
+
+Ask only: Interfaces, Data Entities/Events, Data Schemas, Validation Rules, Security Model, Operational Model, Draft ADR Finalization.
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following:**

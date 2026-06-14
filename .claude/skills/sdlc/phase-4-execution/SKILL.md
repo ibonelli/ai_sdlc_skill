@@ -26,6 +26,22 @@ Main skill routes here after Phase 3 is complete or user jumps to Phase 4.
 3. Read all accepted ADRs
 4. Summarize: what must be built, architectural constraints, forbidden approaches
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: `git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || echo HEAD~20)..HEAD`, `git diff --name-only HEAD~10`, database migration files (ordered by timestamp), any `CHANGELOG*` updates.
+
+After scanning, propose:
+- Scope implemented from commit messages
+- Files touched from `git diff --name-only`
+- Migration steps from migration file names and content
+- How to test from existing test runner config (`Makefile`, `package.json scripts`, CI config)
+
+Mark anything that can't be inferred as `[UNCLEAR — please provide]`. Present proposed answers and ask the user to confirm or correct specific items only.
+
+**Personal project mode** — no questions skipped. All fields in this phase are equally relevant for solo projects. Run the standard question batch.
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following:**

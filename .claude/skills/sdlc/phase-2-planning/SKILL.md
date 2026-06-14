@@ -24,6 +24,31 @@ Main skill routes here after Phase 1 is complete or user jumps to Phase 2.
 2. Extract: all FR-xxx, NFR-xxx, constraints (C-xxx), forbidden solutions (F-xxx)
 3. Summarize scope and constraints for the user as context
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: `.github/` (issues, milestones, project boards), `TODO`, `ROADMAP`, `CHANGELOG*`, CI/CD configs (`.github/workflows/`, `Makefile`, `.circleci/`, `Jenkinsfile`), existing `docs/02-planning/`.
+
+After scanning, propose:
+- Work breakdown inferred from open GitHub issues or TODO items
+- Rollout strategy inferred from CI/CD pipeline shape
+- Observability needs inferred from existing metrics/logging code
+
+Mark anything that can't be inferred as `[UNCLEAR — please provide]`. Present proposed answers and ask the user to confirm or correct specific items only.
+
+**Personal project mode** — if active, apply before gathering information:
+
+Load defaults from `references/personal-project-preset.md`. Pre-fill without asking:
+- Rollout strategy → Direct deploy (no feature flags)
+- Milestones owners → You (sole developer)
+
+Skip from the question batch:
+- **Dependencies** (4) — external teams/vendors/approvals only; still ask about environment deps if present.
+- **Rollout Strategy** (6) — pre-filled as direct deploy; only ask if CI/CD pipeline suggests otherwise.
+
+Ask only: Scope Recap, Work Breakdown, Risks & Mitigations, Definition of Done, High-Level Design, Alternatives Considered, Observability Needs (optional).
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following:**

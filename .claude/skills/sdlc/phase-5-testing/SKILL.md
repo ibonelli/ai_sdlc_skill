@@ -26,6 +26,29 @@ Main skill routes here after Phase 4 is complete or user jumps to Phase 5.
 3. Read Constraints Register (what must not be violated)
 4. Build a requirement-to-test mapping skeleton
 
+### Step 1b: Apply Active Modes
+
+**Auto-fill mode** — if active, scan the repository before asking any questions:
+
+Scan targets: test directories (`tests/`, `test/`, `spec/`, `__tests__/`), CI configuration (`.github/workflows/`, `.circleci/`, `Makefile test` targets), coverage reports if present, existing test file names and function names.
+
+After scanning, propose:
+- Test types in use inferred from existing test files and imports
+- Test cases per requirement by matching existing test names to FR-xxx IDs
+- Entry/exit criteria inferred from CI pass/fail thresholds
+
+Mark anything that can't be inferred as `[UNCLEAR — please provide]`. Present proposed answers and ask the user to confirm or correct specific items only.
+
+**Personal project mode** — if active, apply before gathering information:
+
+Load defaults from `references/personal-project-preset.md`. Collapse test environments:
+- **Test Environments** (3) → ask only: "Local? Deployed prod?" — skip formal DEV/QA/PROD matrix.
+
+Skip from the question batch:
+- Formal environment matrix configuration differences (assume local = dev, deployed = prod).
+
+Ask only: Test Scope, Test Types, Entry Criteria, Exit Criteria, Test Cases per requirement, Known Risks.
+
 ### Step 2: Gather Information (Batch Questions)
 
 **Ask the user ALL of the following:**
